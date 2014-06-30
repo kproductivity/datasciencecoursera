@@ -15,40 +15,21 @@ best <- function(State, outcome){
                          suppressWarnings(as.numeric(outcomes[, 23])))
   names(hospital) <- list("name", "state", "heart attack", "heart failure", "pneumonia")
   
-  # if (missing(State)) stop("state is missing")
-  # if (missing(outcome)) stop("outcome is missing")
-  
+  ## Check that both arguments have been included
+  if (missing(State)) stop("State is missing")
+  if (missing(outcome)) stop("outcome is missing")
   
   ## Check that state and outcome are valid
-  
-  ## I consider this is a best solution for validating State.
-  ## However, the package is not available for R3.1.0
-  # source(state) # it assumes package state is installed
-  # state.list <- state.abb()
-  
-  ## so, I need to build the state list myself
-  state.list <- levels(hospital$state)
-  
+  data(state)
+  state.list <- state.abb
   if (!(is.element(State, state.list))) stop("invalid state")
   
   outcome.list <- c("heart attack", "heart failure", "pneumonia")
   if (!(is.element(outcome, outcome.list))) stop("invalid outcome")
   
-  
-  ## Return hospital name in that state with lowest 30-day death
-  ## rate
+  ## Return hospital name in that state with lowest 30-day death rate
   hospital.state <- hospital[ which(hospital$state==State), ]
-  
-  # Dirty solution. I am sure there must be something cleaner
-  if (outcome == 'heart attack'){
-    hospital.state <- hospital.state[order(hospital.state["heart attack"], na.last=NA), ]
-  }else{
-    if (outcome == 'heart failure'){
-      hospital.state <- hospital.state[order(hospital.state["heart failure"], na.last=NA), ]
-    }else{
-      hospital.state <- hospital.state[order(hospital.state["pneumonia"], na.last=NA), ]
-    }
-  } 
+  hospital.state <- hospital.state[order(hospital.state[outcome], na.last=NA), ]
   
   # Returns the name of the first hospital in the list, which is the one with minimum value
   as.character(hospital.state$name[1])
