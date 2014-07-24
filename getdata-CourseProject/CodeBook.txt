@@ -68,7 +68,7 @@ Then, these variables are named accordingly to these blocks:
 	> Normalised magnitude -> 'mag'
 	> Axis -> X ('axisx'), Y ('axisy'), or Z ('axisz')
 
-Time variables have been normalised and are bounded between [-1, 1].
+Variables have been normalised and are bounded between [-1, 1].
 
 The above blocks result in a total of 66 variables:
 
