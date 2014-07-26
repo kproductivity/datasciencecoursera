@@ -3,9 +3,12 @@ README
 
 The script run_analysis.R proceeds with the instructions given in the Getting and Cleaning Data course project.
 
-It prepares tidy data that can be used for later analysis from the raw dataset obtained from: Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
+It prepares tidy data that can be used for later analysis from the raw dataset obtained from:
 
-This raw dataset has to be unzipped and left in a directory called 'dataset' in your `R` work directory.
+*Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012*
+
+This raw dataset has to be unzipped and left in a directory called 'dataset' in your `R` work directory. It can be obtained from http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
 
 Then, when running the script, these actions are executed automatically:
 
@@ -31,7 +34,11 @@ Then, when running the script, these actions are executed automatically:
 
 8.The variables are renamed for making them human readable (several functions are applied for achieving this)
 
-9.New dataset with averages is saved in the working directory as tidydata.txt
+9.New dataset with averages is saved in the working directory as tidydata.txt; each row contains the pair subject-activity, and each column contains the different features
+
+
+Further information about the variables can be obtained from the Code Book (CodeBook.txt).
+
 
 
 Francisco Marco-Serrano, 26 July 2014
