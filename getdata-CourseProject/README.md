@@ -27,6 +27,7 @@ File structure
 Requirements
 ------------
 1.Download raw dataset un unzip as folder 'dataset'.
+
 2.`R` libraries:
   * reshape2
 
