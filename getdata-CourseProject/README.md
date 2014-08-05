@@ -1,5 +1,10 @@
 README
 ======
+Author: Francisco Marco-Serrano (mailto:fmarco@kproductivity.com)
+
+
+Summary
+-------
 
 The script run_analysis.R proceeds with the instructions given in the Getting and Cleaning Data course project.
 
@@ -8,6 +13,15 @@ It prepares tidy data that can be used for later analysis from the raw dataset o
 *Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012*
 
 This raw dataset has to be unzipped and left in a directory called 'dataset' in your `R` **working directory**. It can be obtained from http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+
+File structure
+--------------
+* 'README.md'     : this file.
+* 'run_analysis.R': `R` script.
+* 'CodeBook.txt'  : code book; find additional information about the script.
+* 'tidydata.txt'  : final output.
+* 'dataset' folder: refer to code book for contents.
 
 
 Actions performed by the script
@@ -43,8 +57,3 @@ Once the dataset has been unzipped, run the script. When running the script in `
 
 Further information about the variables can be obtained from the Code Book (CodeBook.txt).
 
-
-
-
-.
-Francisco Marco-Serrano, 26 July 2014
