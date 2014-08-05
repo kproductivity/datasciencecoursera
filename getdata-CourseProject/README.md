@@ -1,6 +1,6 @@
 README
 ======
-Author: Francisco Marco-Serrano (mailto:fmarco@kproductivity.com)
+Author: Francisco Marco-Serrano (fmarco@kproductivity.com)
 
 
 Summary
@@ -22,6 +22,13 @@ File structure
 * 'CodeBook.txt'  : code book; find additional information about the script.
 * 'tidydata.txt'  : final output.
 * 'dataset' folder: refer to code book for contents.
+
+
+Requirements
+------------
+1.Download raw dataset un unzip as folder 'dataset'.
+2.`R` libraries:
+  * reshape2
 
 
 Actions performed by the script
