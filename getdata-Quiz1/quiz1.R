@@ -5,7 +5,11 @@
 ## for the state of Idaho using download.file() from here:
 
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
-download.file(url, "idaho.csv") # download and store in file
+
+if (file.exists('idaho.csv') == FALSE) {   # if file doesn't exist
+    download.file(url, "idaho.csv")        # download and store in file
+}
+
 housing <- read.csv("idaho.csv") # retrieve in a data frame
 
 ## How many housing units in this survey were worth more than $1,000,000?
@@ -19,7 +23,9 @@ nrow(subset(housing, housing$VAL == 24))
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
 
 ## Need mode=wb because xls is a binary file
-download.file(url, "gas.xlsx", mode = "wb", method = "auto")
+if (file.exists('gas.xlsx') == FALSE) {                            # if file doesn't exist
+    download.file(url, "gas.xlsx", mode = "wb", method = "auto")   # download and store in file
+}
 
 ## Read rows 18-23 and columns 7-15 into R and assign the result to a variable
 
@@ -63,10 +69,13 @@ sum(zipcode == "21231")
 ## QUESTION 5: Download the 2006 microdata survey about housing for the state of Idaho.
 
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
-download.file(url, "Idaho.csv")
+
+if (file.exists('idaho.csv') == FALSE) {   # if file doesn't exist
+    download.file(url, "idaho.csv")        # download and store in file
+}
 
 require(data.table)
-DT <- fread("Idaho.csv")
+DT <- fread("idaho.csv")
 
 ## Use system.time()
 DT[,mean(pwgtp15), by = SEX]
