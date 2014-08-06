@@ -8,8 +8,11 @@
 ##############
 
 # read data
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
-download.file(url, "idaho.csv")
+if (file.exists('idaho.csv') == FALSE) { # if file does not exist
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+    download.file(url, "idaho.csv")      # download from source
+}
+
 household.data <- read.csv("idaho.csv")
 
 # identify households with more than 10 acres which sold more than $10K agricultural products
@@ -25,8 +28,10 @@ row.names(agricultureLogical)[1:3]
 ##############
 
 # read data
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fjeff.jpg"
-download.file(url, "image.jpeg", mode="wb")
+if (file.exists('image.jpg') == FALSE) {        # if file does not exist
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fjeff.jpg"
+    download.file(url, "image.jpeg", mode="wb") # download from source
+}
 
 require('jpeg')
 picture <- readJPEG("image.jpeg", native=TRUE)
@@ -40,11 +45,14 @@ quantile(picture, c(0.30, 0.80))
 ##############
 
 # read data
-url.gdp <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
-url.edu <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
-
-download.file(url.gdp, "gdp.csv")
-download.file(url.edu, "edu.csv")
+if (file.exists('gdp.csv') == FALSE) {
+    url.gdp <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
+    download.file(url.gdp, "gdp.csv")
+}
+if (file.exists('edu.csv') == FALSE) {
+    url.edu <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
+    download.file(url.edu, "edu.csv")
+}
 
 gdp.data <- read.csv("gdp.csv", skip = 5, header = FALSE, nrows = 190)
 edu.data <- read.csv("edu.csv")
