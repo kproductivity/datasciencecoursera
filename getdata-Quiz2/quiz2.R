@@ -32,8 +32,11 @@ subset(jsonData,name=="datasharing")["created_at"]
 ## QUESTION 2: Which of the following commands will select only the data for
 ## the probability weights pwgtp1 with ages less than 50?
 
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
-download.file(url,"acs.csv")
+
+if (file.exists('acs.csv') == FALSE) { # if file does not already exist
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
+    download.file(url,"acs.csv")       # download and store in file
+}
 
 acs <- read.csv("acs.csv")
 
@@ -55,8 +58,11 @@ nchar(htmlCode[biolist])
 ## QUESTION 5:
 ##
 
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"
-download.file(url,"wks.for")
+if (file.exists('wks.for') == FALSE) { # if file does not already exist
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"
+    download.file(url,"wks.for")
+}
+
 mywidth <- c(10, -5, 4, 4, -5, 4, 4, -5, 4, 4, -5, 4, 4) # define the widths of the cols
 wks <- read.fwf("wks.for", mywidth, skip = 4)
 sum(wks[,4])
