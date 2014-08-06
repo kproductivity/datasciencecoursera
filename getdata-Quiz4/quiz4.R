@@ -7,8 +7,11 @@
 ##############
 
 # read data
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
-download.file(url, "idaho.csv")
+if (file.exists('idaho.csv') == FALSE) {
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+    download.file(url, "idaho.csv")
+}
+
 household.data <- read.csv("idaho.csv")
 
 # split names
@@ -21,8 +24,11 @@ splitnames[123]
 ##############
 
 # read data
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
-download.file(url, "gdp.csv")
+if (file.exists('gdp.csv') == FALSE) {
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv"
+    download.file(url, "gdp.csv")
+}
+
 gdp <- read.csv("gdp.csv", skip = 5, header = FALSE, nrows = 190)
 
 # clean data
@@ -50,8 +56,11 @@ nrow(united)
 ##############
 
 # read data
-url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
-download.file(url, "edu.csv")
+if (file.exists('edu.csv') == FALSE) {
+    url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv"
+    download.file(url, "edu.csv")
+}
+
 edu <- read.csv("edu.csv")
 
 # merge both data frames using the country id
