@@ -9,7 +9,7 @@ pm25 = pm25[ which(fips == 24510), sum(Emissions), by=list(type, year)]
 # Rename V1 (total emissions)
 setnames(pm25, "V1", "emissions")
 
-# Variable type as a factor and year as date
+# Variables type and year as a factor
 pm25$type = as.factor(pm25$type)
 pm25$year = as.factor(pm25$year)
 

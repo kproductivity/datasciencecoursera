@@ -13,6 +13,9 @@ require(data.table)
 pm25 = as.data.table(NEI)
 pm25 = pm25[,sum(Emissions),by=year]
 
+# Variable year as a factor
+pm25$year = as.factor(pm25$year)
+
 # Open PNG file
 png(file="plot1.png", width = 480, height = 480)
 
