@@ -1,0 +1,47 @@
+---
+title: 'Severe Weather Events in the US: Health and Economic Issues'
+author: "Francisco Marco-Serrano"
+output: html_document
+---
+
+#Synopsis
+
+Immediately after the title, there should be a synopsis which describes and summarizes your analysis in at most 10 complete sentences.
+
+#Data Processing
+
+From the [U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database](www.ncdc.noaa.gov/stormevents) we obtained data on major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage since 1950 until November 2011.
+
+We first read the data from the bz2 compressed file. The data is a CSV file containing 902297 rows and 37 variables.
+
+```{r cache = TRUE}
+storm.df = read.csv("repdata-data-StormData.csv.bz2")
+
+dim(storm.df)  # how big the data frame is
+str(storm.df)  # which is the structure
+head(storm.df) # show first few rows
+ 
+```
+
+We make sure the date is formated adequately, and create a new variable (YEAR). Keep only the variables for YEAR, STATE, Event Type, Population Health (FATALITIESand INJuRIES), and Economic Consequences (PROPDMG and CROPDMG).
+
+```{r}
+storm.df$BGN_DATE = as.Date(storm.df$BGN_DATE, format = "%m/%d/%Y %H:%M:%S")
+storm.df$YEAR = as.factor(format(storm.df$BGN_DATE, "%Y")) 
+ 
+# subset, to keep only the variables we are interested in
+keeps = c("YEAR", "STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "CROPDMG")
+storm.df = storm.df[ , keeps]
+ 
+```
+
+#Results
+
+```{r}
+# totals per year-state-event
+storm.states = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + STATE + EVTYPE, data = storm.df, FUN="sum")
+ 
+# totals per year-event
+storm.events = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + EVTYPE, data = storm.df, FUN="sum")
+
+```
