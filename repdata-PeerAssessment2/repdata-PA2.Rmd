@@ -23,7 +23,7 @@ head(storm.df) # show first few rows
  
 ```
 
-We make sure the date is formated adequately, and create a new variable (YEAR). Keep only the variables for YEAR, STATE, Event Type, Population Health (FATALITIESand INJuRIES), and Economic Consequences (PROPDMG and CROPDMG).
+We make sure the date is formated adequately, and create a new variable (YEAR). Keep only the variables for YEAR, STATE, Event Type, Population Health (FATALITIESand INJuRIES), and Economic Consequences (PROPDMG for property damages and CROPDMG for crop damages).
 
 ```{r}
 storm.df$BGN_DATE = as.Date(storm.df$BGN_DATE, format = "%m/%d/%Y %H:%M:%S")
@@ -35,13 +35,58 @@ storm.df = storm.df[ , keeps]
  
 ```
 
-#Results
+We group the data adding the four variables of interest per year, State, and type of event.
 
 ```{r}
 # totals per year-state-event
 storm.states = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + STATE + EVTYPE, data = storm.df, FUN="sum")
- 
+
 # totals per year-event
 storm.events = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + EVTYPE, data = storm.df, FUN="sum")
 
+# totals per event
+storm.total = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ EVTYPE, data = storm.df, FUN="sum")
+
 ```
+
+#Results
+
+Show Top 10 events with higher values for each one of the four variables.
+
+```{r}
+
+head(storm.total[order(-storm.total$FATALITIES),]], 10)
+head(storm.total[order(-storm.total$INJURIES),], 10)
+head(storm.total[order(-storm.total$PROPDMG),], 10)
+head(storm.total[order(-storm.total$CROPDMG),], 10)
+
+```
+
+We generate the 'Population Health' variable adding FATALITIES and INJURIES, and the 'Economic Consequences' variable adding PROPDMG and CROPDMG.
+
+```{r}
+
+storm.total$POPHEALTH = storm.total$FATALITIES + storm.total$INJURIES
+storm.total$ECONCONS = storm.total$PROPDMG + storm.total$CROPDMG
+
+```
+
+Show Top 10 events most harmful for population health.
+
+```{r}
+
+storm.total.top10H = storm.total[order(-storm.total$POPHEALTH),]], 10)
+
+counts = table(storm.total.top10H$FATALITIES, storm.total.top10H$INJURIES)
+barplot(counts, main="Top 10 Most Harmful Events for Population Health",
+        horiz = TRUE, col=c("darkblue","red"), legend = rownames(counts))
+
+storm.total.top10E = storm.total[order(-storm.total$ECONCONS),]], 10)
+
+counts = table(storm.total.top10E$PROPDMG, storm.total.top10E$CROPDMG)
+barplot(counts, main="Top 10 Events with Greatest Economic Consequences",
+        horiz = TRUE, col=c("darkblue","red"), legend = rownames(counts))
+
+```
+
+This analysis can be replicated at State level.
