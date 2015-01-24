@@ -1,12 +1,13 @@
 ---
-title: 'Severe Weather Events in the US: Health and Economic Issues'
+title: 'Most Severe Weather Events in the US: Health and Economic Issues'
 author: "Francisco Marco-Serrano"
 output: html_document
 ---
 
 #Synopsis
 
-Immediately after the title, there should be a synopsis which describes and summarizes your analysis in at most 10 complete sentences.
+Since 1996, year from which we have full information on the current 48 events NOAA is recording major storms and weather events information, there have been 653530 of such events in the US.
+On average, the type of event most harmful with respect to population health is *Heat Wave*, with a combined average of fatalities and injuries of 70 per recorded event. As per the economic consequences, *HURRICANE/TYPHOON* is the event generating most losses on average, with a 817.20 M$.
 
 #Data Processing
 
@@ -23,42 +24,86 @@ head(storm.df) # show first few rows
  
 ```
 
-We make sure the date is formated adequately, and create a new variable (YEAR). Keep only the variables for YEAR, STATE, Event Type, Population Health (FATALITIESand INJuRIES), and Economic Consequences (PROPDMG for property damages and CROPDMG for crop damages).
+We make sure the date is formated adequately, and create a new variable (YEAR). Keep only the variables for YEAR, STATE, Event Type, Population Health (FATALITIES plus INJURIES), and Economic Consequences (PROPDMG & PROPDMGEXP for property damages plus CROPDMG & CROPDMGEXP for crop damages).
+
+Only data from 1996 to present is used in the analysis since before not all events were recorded. These are a total of 653530 events.
+
 
 ```{r}
 storm.df$BGN_DATE = as.Date(storm.df$BGN_DATE, format = "%m/%d/%Y %H:%M:%S")
-storm.df$YEAR = as.factor(format(storm.df$BGN_DATE, "%Y")) 
+storm.df$YEAR = as.integer(format(storm.df$BGN_DATE, "%Y")) 
  
 # subset, to keep only the variables we are interested in
-keeps = c("YEAR", "STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "CROPDMG")
-storm.df = storm.df[ , keeps]
- 
+keeps = c("YEAR", "STATE", "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP")
+storm.df = storm.df[storm.df$YEAR > 1995 , keeps]
+
+dim(storm.df)
+
 ```
 
-We group the data adding the four variables of interest per year, State, and type of event.
+We clean the event types (NOOA states only 48 types, while the database reflects 985).
 
 ```{r}
-# totals per year-state-event
-storm.states = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + STATE + EVTYPE, data = storm.df, FUN="sum")
+# Trim spaces
+library(stringr)
+storm.df$EVTYPE = str_trim(storm.df$EVTYPE)
 
-# totals per year-event
-storm.events = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ YEAR + EVTYPE, data = storm.df, FUN="sum")
+# Normalise some events...
+pattern = "(THUNDERSTORM|TSTM)"
+events.index = grep(pattern, storm.df$EVTYPE)
+storm.df$EVTYPE[events.index] = "THUNDERSTORM"
 
-# totals per event
-storm.total = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ EVTYPE, data = storm.df, FUN="sum")
+pattern = "(FLOOD)"
+events.index = grep(pattern, storm.df$EVTYPE)
+storm.df$EVTYPE[events.index] = "FLOOD"
+
+```
+
+We transform PROPDMG and CROPDMG in USD$ according to PROPDMGEXP and CROPDMGEXP (K for thousands, M for millions, B for billions).
+
+```{r}
+
+# Normalise PROPDMG & CROPDMG according to the EXP variables
+# Calculated in millions
+pattern = "(K|k)"
+exp.index = grep(pattern, storm.df$PROPDMGEXP)
+storm.df$PROPDMG[exp.index] = storm.df$PROPDMG[exp.index] * 0.001
+exp.index = grep(pattern, storm.df$CROPDMGEXP)
+storm.df$CROPDMG[exp.index] = storm.df$CROPDMG[exp.index] * 0.001
+
+pattern = "(M|m)"
+exp.index = grep(pattern, storm.df$PROPDMGEXP)
+storm.df$PROPDMG[exp.index] = storm.df$PROPDMG[exp.index] * 1
+exp.index = grep(pattern, storm.df$CROPDMGEXP)
+storm.df$CROPDMG[exp.index] = storm.df$CROPDMG[exp.index] * 1
+
+pattern = "(B|b)"
+exp.index = grep(pattern, storm.df$PROPDMGEXP)
+storm.df$PROPDMG[exp.index] = storm.df$PROPDMG[exp.index] * 1000
+exp.index = grep(pattern, storm.df$CROPDMGEXP)
+storm.df$CROPDMG[exp.index] = storm.df$CROPDMG[exp.index] * 1000
+
+```
+
+We group the data adding the four variables of interest per type of event.
+
+```{r}
+
+# mean of the 1996-2011 period per event
+storm.mean = aggregate(cbind(FATALITIES, INJURIES, PROPDMG, CROPDMG) ~ EVTYPE, data = storm.df, FUN="mean")
 
 ```
 
 #Results
 
-Show Top 10 events with higher values for each one of the four variables.
+Show Top 10 events with higher average values for each one of the four variables.
 
 ```{r}
 
-head(storm.total[order(-storm.total$FATALITIES),]], 10)
-head(storm.total[order(-storm.total$INJURIES),], 10)
-head(storm.total[order(-storm.total$PROPDMG),], 10)
-head(storm.total[order(-storm.total$CROPDMG),], 10)
+head(storm.mean[order(-storm.mean$FATALITIES),], 10)
+head(storm.mean[order(-storm.mean$INJURIES),], 10)
+head(storm.mean[order(-storm.mean$PROPDMG),], 10)
+head(storm.mean[order(-storm.mean$CROPDMG),], 10)
 
 ```
 
@@ -66,27 +111,26 @@ We generate the 'Population Health' variable adding FATALITIES and INJURIES, and
 
 ```{r}
 
-storm.total$POPHEALTH = storm.total$FATALITIES + storm.total$INJURIES
-storm.total$ECONCONS = storm.total$PROPDMG + storm.total$CROPDMG
+storm.mean$POPHEALTH = storm.mean$FATALITIES + storm.mean$INJURIES
+storm.mean$ECONCONS = storm.mean$PROPDMG + storm.mean$CROPDMG
 
 ```
 
-Show Top 10 events most harmful for population health.
+Show Top 10 events most harmful for population health and with worst economic consequences.
 
 ```{r}
 
-storm.total.top10H = storm.total[order(-storm.total$POPHEALTH),]], 10)
+storm.top10H = storm.mean[order(-storm.mean$POPHEALTH),][1:10, ]
+storm.top10H
+barplot(storm.top10H$POPHEALTH,
+        main = "Average total fatalities and injuries (Top 10 Events)",
+        names.arg = storm.top10H$EVTYPE, las = 2)
 
-counts = table(storm.total.top10H$FATALITIES, storm.total.top10H$INJURIES)
-barplot(counts, main="Top 10 Most Harmful Events for Population Health",
-        horiz = TRUE, col=c("darkblue","red"), legend = rownames(counts))
 
-storm.total.top10E = storm.total[order(-storm.total$ECONCONS),]], 10)
-
-counts = table(storm.total.top10E$PROPDMG, storm.total.top10E$CROPDMG)
-barplot(counts, main="Top 10 Events with Greatest Economic Consequences",
-        horiz = TRUE, col=c("darkblue","red"), legend = rownames(counts))
+storm.top10E = storm.mean[order(-storm.mean$ECONCONS),][1:10, ]
+storm.top10E
+barplot(storm.top10E$ECONCONS,
+        main = "Average economic consequences M.US$ (Top 10 Events)",
+        names.arg = storm.top10E$EVTYPE, las = 2)
 
 ```
-
-This analysis can be replicated at State level.
