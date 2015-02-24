@@ -1,0 +1,88 @@
+---
+title: 'Statistical Inference: ToothGrowth'
+author: "Francisco Marco-Serrano"
+output: pdf_document
+---
+
+#Summary
+According to R Help, the ToothGrowth dataset contains the information on the length of teeth in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid). We analyse the differences in length growth by dose level and delivery method.
+
+#Data Exploratory Analysis
+```{r}
+library(datasets)
+library(lattice)
+
+data.fr <- ToothGrowth
+
+# Basic information on dimension of the data frame and the variables
+dim(data.fr)
+str(data.fr)
+
+# including summary
+summary(data.fr)
+
+# mean by dose and supplement
+mag <- aggregate(len ~ ., data = data.fr, mean)
+xtabs(len ~ ., data = mag)
+
+# var by dose and supplement
+vag <- aggregate(len ~ ., data = data.fr, var)
+xtabs(len ~ ., data = vag)
+
+# histogram of tooth growth
+histogram( ~ data.fr$len, data = data.fr,
+           main = "Histogram", xlab = "Tooth length")
+
+# histogram per dose and type of supplement
+data.fr$dose <- as.factor(data.fr$dose)
+histogram( ~ data.fr$len | data.fr$dose+data.fr$supp, data = data.fr,
+           main = "Histogram of tooth length by Supplement and Dose",
+           xlab = "Tooth length")
+
+# and boxplot per dose and type of supplement
+boxplot(data.fr$len ~ data.fr$dose + data.fr$supp, horizontal = TRUE)
+
+```
+
+The basic exploratory analysis suggests there are differences in the tooth length depending on the dose and type of supplement.
+
+
+#Confidence Intervals
+
+We test the difference in the means of tooth length between the group that received one type of supplement and the other group.
+
+```{r}
+
+# Independent groups T-test with unequal variance
+# for assessing differences from supplement
+t.test(data.fr$len~data.fr$supp, var.equal = FALSE)
+
+# For assessing differences from dose, an ANOVA model would be better,
+# however we are instructed to use T-tests:
+
+# 0.5 vs rest
+data.fr$d05 <- 0
+data.fr$d05[which(data.fr$dose == "0.5")] <- 1
+aggregate(len ~ d05, data = data.fr, var)
+t.test(data.fr$len~data.fr$d05, var.equal = FALSE)
+
+# 1.0 vs rest
+data.fr$d10 <- 0
+data.fr$d10[which(data.fr$dose == "1")] <- 1
+aggregate(len ~ d10, data = data.fr, var)
+t.test(data.fr$len~data.fr$d10, var.equal = FALSE)
+
+# 2.0 vs rest
+data.fr$d20 <- 0
+data.fr$d20[which(data.fr$dose == "2")] <- 1
+aggregate(len ~ d20, data = data.fr, var)
+t.test(data.fr$len~data.fr$d20, var.equal = FALSE)
+
+```
+
+#Conclusions
+* With a 95% confidence, there is no conclusive evidence the type of supplement explains the difference in tooth growth.
+* From the p-value, when considering the type of supplement, differences in tooth growth could be considered at significance levels above 6.1%.
+* From the p-value, when considering the dose, differences in tooth growth could be considered from 0.5mg vs the rest of doses.
+* There is no significant difference in tooth growth when considering a 1mg dose vs the rest of doses.
+* From the p-value, when considering the dose, differences in tooth growth could be considered from 2.0mg vs the rest of doses.
