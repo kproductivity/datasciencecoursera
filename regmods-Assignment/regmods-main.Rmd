@@ -1,0 +1,35 @@
+---
+title: "Regression Models Assignment: Motor Trend Case Study"
+author: "Francisco Marco-Serrano"
+output: pdf_document
+---
+
+# Executive Summary
+
+
+# Dataset and Exploratory Analysis
+The analysed dataset is the `mtcars` data from the `datasets` package. It contains information on 11 variables for 32 observations from Motor Trend Car Road Tests.
+
+```{r echo=FALSE}
+library(datasets)
+str(mtcars)
+```
+
+The variables are correlated in the following manner:
+
+```{r echo = FALSE}
+library(corrgram)
+corrgram(mtcars, order = TRUE,
+         lower.panel = panel.shade,
+         upper.panel = panel.pts,
+         text.panel = panel.txt)
+```
+
+As we can see, all five numerical variables seem to have either an indirect relationship with the miles per gallon (i.e. disp, hp, wt) or a direct one (i.e. drat, qsec).
+
+
+# Analysis
+
+```{r}
+fit <- lm(mtcars$mpg .)
+```
