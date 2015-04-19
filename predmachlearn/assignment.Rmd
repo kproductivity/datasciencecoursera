@@ -1,0 +1,42 @@
+---
+title: "Machine Learning Assignment"
+author: "Francisco Marco-Serrano"
+output: html_document
+---
+
+##Synopsis
+A machine learning algorithm is devised to predict activity quality from activity monitors. It is described what the out of sample error is and an estimate of the error is given from a cross-validation exercise.
+
+##Data and exploratory analysis
+
+The dataset has 5 classes (sitting-down, standing-up, standing, walking, and sitting) collected on 8 hours of activities of 4 healthy subjects. The authors also established a baseline performance index.
+
+Read more: http://groupware.les.inf.puc-rio.br/har
+
+*Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.*
+
+
+```{r}
+train.df <- read.csv("pml-training.csv")
+dim(train.df)
+
+test.df <- read.csv("pml-testing.csv")
+dim(test.df)
+```
+
+
+##Algorithm
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
