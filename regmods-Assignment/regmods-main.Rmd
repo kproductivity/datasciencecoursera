@@ -1,7 +1,10 @@
 ---
-title: "Regression Models Assignment: Motor Trend Case Study"
+title: 'Regression Models Assignment: Motor Trend Case Study'
 author: "Francisco Marco-Serrano"
-output: pdf_document
+output:
+  pdf_document:
+    fig_height: 4
+    fig_width: 5
 ---
 
 # Executive Summary
@@ -14,62 +17,21 @@ The analysed dataset is the `mtcars` data from the `datasets` package. It contai
 library(datasets)
 ```
 
-The variables are correlated in the following manner:
-
-```{r echo = FALSE}
-library(corrgram)
-corrgram(mtcars, order = TRUE,
-         lower.panel = panel.shade,
-         upper.panel = panel.pts,
-         text.panel = panel.txt)
-```
-
-As we can see, all five numerical variables seem to have either an indirect relationship with the miles per gallon (i.e. disp, hp, wt) or a direct one (i.e. drat, qsec).
-
-
 # Analysis
 
 Different nested models are tested starting with all the variables as confounders. Significance tests and comparison of adjusted coeficient of determination are used to assess the suitability of the model. See Appendix for detailed results.
 
 Finally, to the best fitted model is shown below.
 
-```{r}
+```{r echo = FALSE}
 fit <- lm(mtcars$mpg ~ mtcars$wt + mtcars$qsec + factor(mtcars$am), mtcars)
 summary(fit)
 ```
 
-The variable `am` is significant at any 5% significance level (p-value = 0.046716, which suggests that at 1% we would not be rejecting the null hypothesis). As the variable is defined for taking unitary values for manual transmision, the positive coefficient points out towards a better `mpg` for the manual transmision cars versus the consumption of the automatic transmision ones. The mean difference is of 2.9358 miles/(US) gallon.
+The variable `am` is significant at any 5% significance level (p-value = 0.046716, which suggests that at 1% we would not be rejecting the null hypothesis). As the variable is defined for taking unitary values for manual transmision, the positive coefficient points out towards a higher `mpg` for the manual transmision cars versus the consumption of the automatic transmision ones. The mean difference, after accounting for the weight and mile time effects, is of 2.9358 miles/(US) gallon.
 
-## Plot the residuals and run diagnostics for normality, homocedasticity and multicollinearity.
+All the diagnostics pointed out to the validity of the model (see Appendix for details on normality, homocedasticity, and multicollinearity).
 
-
-```{r}
-fit.fitted <- fitted(fit)
-fit.resid <- resid(fit)
-plot(fit.fitted, fit.resid,
-     xlab = "fitted values", ylab = "residuals", main = "Residual Plot")
-abline(0, 0)
-```
-
-Diagnose normality by using the QQ plot: the diagram suggests the error term is normally distributed.
-
-```{r}
-qqPlot(fit, main="QQ Plot")
-```
-
-Diagnose homocedasticity by using the Breusch-Pagan test: the p-value is 0.1029 so if we consider a significance level of 5%, we could not reject the hypothesis of homocedasticity (at a 10%, we would be in a border line situation).
-
-```{r}
-library(lmtest)
-bptest(fit)
-```
-
-Diagnose multicollinearity using the Variance Inflation Factors (VIF): none of the values exceeds the rule of thumb of 2. So, the presence of multicollinearity is not considered.
-
-```{r}
-library(car)
-sqrt(vif(fit))
-```
 
 # Appendix
 
@@ -89,17 +51,25 @@ gear     | Number of forward gears
 carb     | Number of carburettors
 
 
-```{r}
-# Show data frame structure
-str(mtcars)
+## Correlation Structure
+
+The variables are correlated in the following manner:
+
+```{r echo = FALSE}
+library(corrgram)
+corrgram(mtcars, order = TRUE,
+         lower.panel = panel.shade,
+         upper.panel = panel.pts,
+         text.panel = panel.txt)
 ```
+
+As we can see, all five numerical variables seem to have either an indirect relationship with the miles per gallon (i.e. disp, hp, wt) or a direct one (i.e. drat, qsec).
 
 
 ## Model Selection
-```{r}
+```{r echo = FALSE}
 x<-mtcars[c(1:11)]        # numeric variables
 fit1 <- lm(x$mpg ~.,x)
-summary(fit1)
 
 x<-mtcars[c(1,3,4,6,7,9)] # next best model by reducing non-significant variables
 fit2 <- lm(x$mpg ~.,x)
@@ -111,3 +81,34 @@ summary(fit3)
 ```
 
 Selected model is `fit3`, which explains mpg by wt, qsec and am. All three variables significant at 5% level, and an adjusted coeficient of determination of 83.36% (unadjusted is 84.97%).
+
+## Diagnostics
+
+
+```{r echo = FALSE}
+fit.fitted <- fitted(fit)
+fit.resid <- resid(fit)
+plot(fit.fitted, fit.resid,
+     xlab = "fitted values", ylab = "residuals", main = "Residual Plot")
+abline(0, 0)
+```
+
+Diagnose normality by using the QQ plot: the diagram suggests the error term is normally distributed.
+
+```{r echo = FALSE}
+require(car)
+qqPlot(fit, main="QQ Plot")
+```
+
+Diagnose homocedasticity by using the Breusch-Pagan test: the p-value is 0.1029 so if we consider a significance level of 5%, we could not reject the hypothesis of homocedasticity (at a 10%, we would be in a border line situation).
+
+```{r echo = FALSE}
+require(lmtest)
+bptest(fit)
+```
+
+Diagnose multicollinearity using the Variance Inflation Factors (VIF): none of the values exceeds the rule of thumb of 2. So, the presence of multicollinearity is not considered.
+
+```{r echo = FALSE}
+sqrt(vif(fit))
+```
