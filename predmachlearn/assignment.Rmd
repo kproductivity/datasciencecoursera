@@ -17,26 +17,35 @@ Read more: http://groupware.les.inf.puc-rio.br/har
 
 
 ```{r}
-train.df <- read.csv("pml-training.csv")
-dim(train.df)
+library(caret)
+library(rattle)
 
-test.df <- read.csv("pml-testing.csv")
-dim(test.df)
+train.df <- read.csv("pml-training.csv", na.strings = "NA")
+test.df <- read.csv("pml-testing.csv", na.strings = "NA")
+
+# Train data is splitted for cross-validation purposes
+
+set.seed(123)
+
+inTrain <- createDataPartition(y = train.df$classe, p = 0.75, list = FALSE)
+train <- train.df[inTrain, ]
+test <- train.df[-inTrain, ]
+
 ```
 
 
 ##Algorithm
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+A prediction tree has been selected.
 
 ```{r}
-summary(cars)
+
+fit <- train(classe~., data = train, method = "rpart")
+printcp(fit)
+
+fancyRpartPlot(fit$finalModel)
+
+predict(fit, newdata = test)
+confusionMatrix(predict(fit, newdata = test), test$classe)
 ```
 
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
