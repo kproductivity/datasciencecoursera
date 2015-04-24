@@ -24,6 +24,11 @@ library(rpart.plot)
 train.df <- read.csv("pml-training.csv", na.strings = "NA")
 test.df <- read.csv("pml-testing.csv", na.strings = "NA")
 
+# Take out summary variables
+toremove <- c(1:7, 12:36, 50:59, 69:83, 87:112, 125:150)
+train.df <- train.df[ , -toremove]
+test.df <- train.df[ , -toremove]
+
 # Train data is splitted for cross-validation purposes
 
 set.seed(123)
@@ -42,11 +47,11 @@ A prediction tree has been selected.
 ```{r}
 
 fit <- train(classe~., data = train, method = "rpart", tuneLength = 30)
-printcp(fit)
+fit
 
 fancyRpartPlot(fit$finalModel)
 
-predict(fit, newdata = test)
-confusionMatrix(predict(fit, newdata = test), test$classe)
+predicted <- predict(fit, newdata = test)
+confusionMatrix(predicted, test$classe)
 ```
 
