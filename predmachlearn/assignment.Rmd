@@ -58,8 +58,21 @@ confusionMatrix(predicted, test$classe)
 
 ##Predicted values
 
+For generating the prediction files I have used the script provided by the instructors (see https://class.coursera.org/predmachlearn-013/assignment/view?assignment_id=5).
+
 ```{r}
 
-predict(fit, newdata = test.df)
+answers = predict(fit, newdata = test.df)
+answers
+
+pml_write_files = function(x){
+    n = length(x)
+    for(i in 1:n){
+        filename = paste0("problem_id_",i,".txt")
+        write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+    }
+}
+
+pml_write_files(answers)
 
 ```
