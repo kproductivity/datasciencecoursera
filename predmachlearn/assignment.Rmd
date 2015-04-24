@@ -19,6 +19,7 @@ Read more: http://groupware.les.inf.puc-rio.br/har
 ```{r}
 library(caret)
 library(rattle)
+library(rpart.plot)
 
 train.df <- read.csv("pml-training.csv", na.strings = "NA")
 test.df <- read.csv("pml-testing.csv", na.strings = "NA")
@@ -40,7 +41,7 @@ A prediction tree has been selected.
 
 ```{r}
 
-fit <- train(classe~., data = train, method = "rpart")
+fit <- train(classe~., data = train, method = "rpart", tuneLength = 30)
 printcp(fit)
 
 fancyRpartPlot(fit$finalModel)
