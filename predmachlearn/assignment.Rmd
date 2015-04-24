@@ -27,7 +27,7 @@ test.df <- read.csv("pml-testing.csv", na.strings = "NA")
 # Take out summary variables
 toremove <- c(1:7, 12:36, 50:59, 69:83, 87:112, 125:150)
 train.df <- train.df[ , -toremove]
-test.df <- train.df[ , -toremove]
+test.df <- test.df[ , -toremove]
 
 # Train data is splitted for cross-validation purposes
 
@@ -42,7 +42,7 @@ test <- train.df[-inTrain, ]
 
 ##Algorithm
 
-A prediction tree has been selected.
+A prediction tree has been selected, with a tunning length of 30 iterations. Cross-validation has been done using 25% of the training dataset.
 
 ```{r}
 
@@ -53,5 +53,13 @@ fancyRpartPlot(fit$finalModel)
 
 predicted <- predict(fit, newdata = test)
 confusionMatrix(predicted, test$classe)
+
 ```
 
+##Predicted values
+
+```{r}
+
+predict(fit, newdata = test.df)
+
+```
