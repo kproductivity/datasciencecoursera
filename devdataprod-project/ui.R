@@ -3,6 +3,9 @@
 # Coursera module.
 #
 # https://www.coursera.org/course/devdataprod
+#
+# Data source: http://data.london.gov.uk/dataset/london-borough-profiles
+#
 
 
 library(shiny)
@@ -10,21 +13,27 @@ library(shiny)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("London Boroughs Happiness"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      sliderInput("bins",
-                  "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
+      selectInput("var", 
+                  label = "Choose a variable",
+                  choices = list("Population density",
+                                 "Average age",
+                                 "Unemployment rate",
+                                 "Gross annual pay",
+                                 "Crime rate"),
+                  selected = "Population density"),
+      textInput("text", label = h3("Your borough's value"), 
+                value = "0")
     ),
 
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("distPlot")
+      plotOutput("distPlot"),
+      textOutput("prediction")
     )
   )
 ))
