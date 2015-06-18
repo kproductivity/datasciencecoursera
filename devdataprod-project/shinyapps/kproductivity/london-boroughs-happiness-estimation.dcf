@@ -1,0 +1,5 @@
+name: london-boroughs-happiness-estimation
+account: kproductivity
+bundleId: 204405
+url:
+        https://kproductivity.shinyapps.io/london-boroughs-happiness-estimation
