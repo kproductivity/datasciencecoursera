@@ -1,0 +1,3 @@
+This web app features data from the London Boroughs (United Kingdom). Government is collecting data about self-reported happiness, together with more usual socio-economic indicators (eg. unemployment rate, crime rate, etc).
+In order to assess which variables are associated with the "Happiness Index", the user can select a variable and visualise a scattergram. A regression line is calculated and shown in red.
+In the text box, the user can introduce any value for the selected variable and the app will calculate the estimated value for the "Happiness Index".
