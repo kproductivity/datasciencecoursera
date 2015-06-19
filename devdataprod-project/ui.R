@@ -33,7 +33,6 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       pre(includeText("documentation.txt")),
-      br(),
       plotOutput("distPlot"),
       textOutput("prediction")
     )
