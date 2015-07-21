@@ -1,6 +1,6 @@
-###########
-# Quizz 1 #
-###########
+####################
+# Task 0 - Quizz 1 #
+####################
 
 #Load data
 
@@ -46,6 +46,72 @@ rm(tweet)
 
 
 ###########
-# Quizz 2 #
+# Task 1 #
 ###########
 
+library(tm)
+
+#Generate corpus
+corp.source <- en_US.news
+my.source <- VectorSource(corp.source)
+corpus <- VCorpus(my.source)
+
+summary(corpus)
+
+#Clean corpus; use getTransformations() to see all available.
+##every word to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+##remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+##strip whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+##we could remove stopwords, but we need them for predictive purposes
+##corpus <- tm_map(corpus, removeWords, stopwords(“english”))
+
+##we could remove our own stop words.
+ownStopWords <- c("")
+corpus <- tm_map(corpus, removeWords, ownStopWords)
+
+
+inspect(corpus)
+
+##General transforming functions
+
+###to white space
+toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "/|@|\\|")
+
+###to something else
+toString <- content_transformer(function(x, from, to) gsub(from, to, x))
+corpus <- tm_map(corpus, toString, "harbin institute technology", "HIT")
+
+
+
+#Write corpus into a directory
+writeCorpus(corpus)
+
+
+#Get the term matrix
+dtm <- DocumentTermMatrix(corpus)
+dim(dtm)
+
+#Remove sparse items
+dtm2 <- removeSparseTerms(dtm, sparse=0.95)
+dim(dtm2)
+
+#Show frequent terms
+findFreqTerms(dtm2, 2)
+#or, better
+freq <- sort(colSums(as.matrix(dtm2)), decreasing=TRUE)
+word.freq <- data.frame(word=names(freq), freq=freq)
+barplot(height=word.freq$freq, names.arg=word.freq$word)
+
+
+#Tokenize
+##Unigrams
+tokens <- MC_tokenizer(corpus)
+
+##Ngrams
+tokenizer <- function(x, size) unlist(lapply(ngrams(words(x), size),
+                                             paste, collapse = " "),
+                                      use.names = FALSE)
