@@ -1,16 +1,16 @@
-####################
-# Task 0 - Quizz 1 #
-####################
+###########
+# Quizz 1 #
+###########
 
 #Load data
 
-myfile <- "C:/Users/fmarcoserrano/Downloads/Coursera-SwiftKey/final/en_US/en_US.blogs.txt"
+myfile <- "C:/Dropbox/Coursera-SwiftKey/final/en_US/en_US.blogs.txt"
 en_US.blogs <- scan(file=myfile, what="character", sep="\n", quote="")
 
-myfile <- "C:/Users/fmarcoserrano/Downloads/Coursera-SwiftKey/final/en_US/en_US.news.txt"
+myfile <- "C:/Dropbox/Coursera-SwiftKey/final/en_US/en_US.news.txt"
 en_US.news <- scan(file=myfile, what="character", sep="\n", quote="")
 
-myfile <- "C:/Users/fmarcoserrano/Downloads/Coursera-SwiftKey/final/en_US/en_US.twitter.txt"
+myfile <- "C:/Dropbox/Coursera-SwiftKey/final/en_US/en_US.twitter.txt"
 en_US.twitter <- scan(file=myfile, what="character", sep="\n", quote="")
 
 rm(myfile)
@@ -52,11 +52,23 @@ rm(tweet)
 library(tm)
 
 #Generate corpus
-corp.source <- en_US.news
+corp.source <- paste(en_US.blogs,en_US.news,en_US.twitter)
 my.source <- VectorSource(corp.source)
 corpus <- VCorpus(my.source)
 
+rm(corp.source, my.source)
 summary(corpus)
+
+#Get the 'dirty' term matrix
+dtm <- DocumentTermMatrix(corpus)
+dim(dtm)
+#wordcount
+rowSums(as.matrix(dtm))
+
+count<- as.data.frame(inspect(dtm))
+count$word = rownames(count)
+colnames(count) <- c(“count”,”word” )
+count <- count[order(count$count, decreasing=TRUE), ]
 
 #Clean corpus; use getTransformations() to see all available.
 ##every word to lower case
@@ -66,12 +78,16 @@ corpus <- tm_map(corpus, removeNumbers)
 ##strip whitespaces
 corpus <- tm_map(corpus, stripWhitespace)
 ##we could remove stopwords, but we need them for predictive purposes
-##corpus <- tm_map(corpus, removeWords, stopwords(“english”))
+##corpus <- tm_map(corpus, removeWords, stopwords("english"))
 
 ##we could remove our own stop words.
-ownStopWords <- c("")
+##Profanity list from http://www.cs.cmu.edu/~biglou/resources/
+url <- "http://www.cs.cmu.edu/~biglou/resources/bad-words.txt"
+profanity <- read.csv(url, header=FALSE)
+ownStopWords <- as.character(profanity[[1]])
 corpus <- tm_map(corpus, removeWords, ownStopWords)
 
+rm(url, profanity, ownStopWords)
 
 inspect(corpus)
 
@@ -85,13 +101,13 @@ corpus <- tm_map(corpus, toSpace, "/|@|\\|")
 toString <- content_transformer(function(x, from, to) gsub(from, to, x))
 corpus <- tm_map(corpus, toString, "harbin institute technology", "HIT")
 
-
+rm(toSpace, toString)
 
 #Write corpus into a directory
 writeCorpus(corpus)
 
 
-#Get the term matrix
+#Get the cleaned term matrix
 dtm <- DocumentTermMatrix(corpus)
 dim(dtm)
 
@@ -107,11 +123,29 @@ word.freq <- data.frame(word=names(freq), freq=freq)
 barplot(height=word.freq$freq, names.arg=word.freq$word)
 
 
-#Tokenize
-##Unigrams
-tokens <- MC_tokenizer(corpus)
+#Plot frequencies
+term.freq <- rowSums(as.matrix(tdm))
+term.freq <- subset(term.freq, term.freq >= 15)
+df <- data.frame(term = names(term.freq), freq = term.freq)
+library(ggplot2)
+ggplot(df, aes(x = term, y = freq)) + geom_bar(stat = "identity") +
+    xlab("Terms") + ylab("Count") + coord_flip()
 
-##Ngrams
-tokenizer <- function(x, size) unlist(lapply(ngrams(words(x), size),
-                                             paste, collapse = " "),
-                                      use.names = FALSE)
+#And associations
+library(graph)
+library(Rgraphviz)
+plot(tdm, term = freq.terms, corThreshold = 0.1, weighting = T)
+
+#Tokenize
+library(RWeka)
+
+#this is required to plug it into Weka
+corpus.df <- data.frame(text=unlist(sapply(corpus, '[',"content")),stringsAsFactors=F)
+
+delimiters <- " \\t\\r\\n.!?,;\"()"
+
+##Unigrams
+Ngram1 <- NGramTokenizer(corpus.df, Weka_control(min=1,max=1))
+
+##Bigrams
+Ngram2 <- NGramTokenizer(corpus.df, Weka_control(min=2,max=2, delimiters=delimiters))
