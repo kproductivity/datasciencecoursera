@@ -1,0 +1,128 @@
+---
+title: "Data Science Capstone - Milestone Report"
+author: "Francisco Marco-Serrano"
+output: html_document
+---
+
+#Briefing
+The aim of this report is to describe the three files that will be used to build the corpus employed to model a predictive algorithm for Swiftkey. The data is from a corpus called HC Corpora ([www.corpora.heliohost.org]) and it contains samples from news, blogs, and Twitter, in English, German, Russian, and Finnish.
+
+#Data
+In this report, the English datasets are explored, and prepared for the modelling.
+
+```{r}
+#Load required libraries
+library(tm)
+
+#Load data
+setwd("~/Documents/Projects/datasciencecoursera/dsscapstone")
+
+myfile <- "./final/en_US/en_US.blogs.txt"
+en_US.blogs <- scan(file=myfile, what="character", sep="\n", quote="")
+
+myfile <- "./final/en_US/en_US.news.txt"
+en_US.news <- scan(file=myfile, what="character", sep="\n", quote="")
+
+myfile <- "./final/en_US/en_US.twitter.txt"
+en_US.twitter <- scan(file=myfile, what="character", sep="\n", quote="")
+
+rm(myfile) #used to save memory
+
+#Some basic summaries of the three files
+##Number of elements/documents (lines)
+length(en_US.blogs)
+length(en_US.news)
+length(en_US.twitter)
+
+##Descriptive stats on the number of characters of the documents (basic data tables)
+summary(nchar(en_US.blogs))
+summary(nchar(en_US.news))
+summary(nchar(en_US.twitter))
+
+##Word count
+sum(sapply(strsplit(en_US.blogs, " "), length))
+sum(sapply(strsplit(en_US.news, " "), length))
+sum(sapply(strsplit(en_US.twitter, " "), length))
+
+```
+
+#Analysis of the documents
+
+````{r}
+#Load libraries
+library(RWeka)
+library(ggplot2)
+
+#Generate corpus (text that will be used to build algorithm)
+corp.source <- paste(en_US.blogs,en_US.news,en_US.twitter)
+rm(en_US.blogs, en_US.news, en_US.twitter)
+
+##select a sample of 1/3 of the total documents
+corp.source <- sample(corp.source, size = ceiling(length(corp.source)/3),
+                      replace = FALSE)
+
+my.source <- VectorSource(corp.source)
+rm(corp.source)
+
+corpus <- VCorpus(my.source)
+rm(my.source)
+
+summary(corpus)
+
+#Clean corpus; use getTransformations() to see all available.
+##every word to lower case
+corpus <- tm_map(corpus, content_transformer(tolower))
+##remove numbers
+corpus <- tm_map(corpus, removeNumbers)
+##strip whitespaces
+corpus <- tm_map(corpus, stripWhitespace)
+##remove stopwords
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+
+##remove own stopwords
+##profanity list from http://www.cs.cmu.edu/~biglou/resources/
+url <- "http://www.cs.cmu.edu/~biglou/resources/bad-words.txt"
+profanity <- read.csv(url, header=FALSE)
+ownStopWords <- as.character(profanity[[1]])
+corpus <- tm_map(corpus, removeWords, ownStopWords)
+
+rm(url, profanity, ownStopWords)
+
+
+#Get the cleaned term matrix
+dtm <- DocumentTermMatrix(corpus)
+dim(dtm)
+
+##wordcount
+rowSums(as.matrix(dtm))
+
+#Remove sparse items
+dtm2 <- removeSparseTerms(dtm, sparse=0.95)
+dim(dtm2)
+
+#Show frequent terms
+freq <- sort(colSums(as.matrix(dtm2)), decreasing=TRUE)
+word.freq <- data.frame(word=names(freq), freq=freq)
+barplot(height=word.freq$freq, names.arg=word.freq$word)
+
+#Plot frequencies
+term.freq <- rowSums(as.matrix(tdm))
+term.freq <- subset(term.freq, term.freq >= 15)
+df <- data.frame(term = names(term.freq), freq = term.freq)
+ggplot(df, aes(x = term, y = freq)) + geom_bar(stat = "identity") +
+    xlab("Terms") + ylab("Count") + coord_flip()
+
+#And associations
+plot(tdm, term = freq.terms, corThreshold = 0.1, weighting = T)
+
+```
+
+#Next milestones
+
+Considering the results shown before and the size of the corpus, we are planning the following milestones for developing the predicting algorithm:
+
+*Work with different sample sizes and techniques of the files.
+*Clean better the Twitter documents.
+*Tokenize the corpus and build N-grams.
+*Identify a suitable technique for modelling the English language.
+*Deploy algorithm in a Shinny web-app.
