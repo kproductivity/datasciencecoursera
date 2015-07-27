@@ -192,21 +192,11 @@ writeCorpus(corpus, path = "./corpus",
 
 #Tokenize
 
-#this is required to plug it into Weka
-corpus.df <- data.frame(text=unlist(sapply(corpus, '[',"content")),stringsAsFactors=F)
-
-rm(corpus)
-
-delimiters <- " \\t\\r\\n.!?,;\"()"
-
-# Sets the default number of threads to use
+## Sets the default number of threads to use
 options(mc.cores=1)
 
-##Unigrams
-Ngram1 <- NGramTokenizer(corpus.df, Weka_control(min=1,max=1))
+ngramTokenizer = function(x) NGramTokenizer(x, Weka_control(min = 1, max = 3))
 
-##Bigrams
-Ngram2 <- NGramTokenizer(corpus.df, Weka_control(min=2,max=2, delimiters=delimiters))
-
-##Trigrams
-Ngram3 <- NGramTokenizer(corpus.df, Weka_control(min=3,max=3, delimiters=delimiters))
+dtm <- DocumentTermMatrix(corpus, control = list(tokenize = ngramTokenizer))
+dtm <- removeSparseTerms(dtm, sparseValue)
+dtm <- as.data.frame(as.matrix(dtm))
