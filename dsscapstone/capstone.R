@@ -136,16 +136,77 @@ library(graph)
 library(Rgraphviz)
 plot(tdm, term = freq.terms, corThreshold = 0.1, weighting = T)
 
-#Tokenize
+##########
+# Task 4 #
+##########
+
+library(tm)
+
+library(rJava) .jinit(parameters="-Xmx128g")
 library(RWeka)
+
+#Load data
+myfile <- "./final/en_US/en_US.blogs.txt"
+en_US.blogs <- scan(file=myfile, what="character", sep="\n", quote="")
+
+myfile <- "./final/en_US/en_US.news.txt"
+en_US.news <- scan(file=myfile, what="character", sep="\n", quote="")
+
+myfile <- "./final/en_US/en_US.twitter.txt"
+en_US.twitter <- scan(file=myfile, what="character", sep="\n", quote="")
+
+rm(myfile)
+
+#Select a sample of 1% of the total documents
+blogs <- sample(en_US.blogs, size = ceiling(length(en_US.blogs)/100),
+                replace = FALSE)
+news <- sample(en_US.news, size = ceiling(length(en_US.news)/100),
+               replace = FALSE)
+twitter <- sample(en_US.twitter, size = ceiling(length(en_US.twitter)/100),
+                  replace = FALSE)
+
+rm(en_US.blogs, en_US.news, en_US.twitter)
+
+#Generate corpus (text that will be used to build algorithm)
+corp.source <- VectorSource(paste(blogs, news, twitter))
+rm(blogs, news, twitter)
+
+corpus <- VCorpus(corp.source, readerControl = list(language = "English"))
+rm(corp.source)
+
+#Clean corpus
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+##profanity list from http://www.cs.cmu.edu/~biglou/resources/
+url <- "http://www.cs.cmu.edu/~biglou/resources/bad-words.txt"
+profanity <- read.csv(url, header=FALSE)
+ownStopWords <- as.character(profanity[[1]])
+corpus <- tm_map(corpus, removeWords, ownStopWords)
+rm(url, profanity, ownStopWords)
+
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, stripWhitespace)
+
+writeCorpus(corpus, path = "./corpus",
+            filenames = paste(seq_along(corpus), ".txt", sep = ""))
+
+#Tokenize
 
 #this is required to plug it into Weka
 corpus.df <- data.frame(text=unlist(sapply(corpus, '[',"content")),stringsAsFactors=F)
 
+rm(corpus)
+
 delimiters <- " \\t\\r\\n.!?,;\"()"
+
+# Sets the default number of threads to use
+options(mc.cores=1)
 
 ##Unigrams
 Ngram1 <- NGramTokenizer(corpus.df, Weka_control(min=1,max=1))
 
 ##Bigrams
 Ngram2 <- NGramTokenizer(corpus.df, Weka_control(min=2,max=2, delimiters=delimiters))
+
+##Trigrams
+Ngram3 <- NGramTokenizer(corpus.df, Weka_control(min=3,max=3, delimiters=delimiters))
