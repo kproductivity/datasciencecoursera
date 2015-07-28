@@ -142,9 +142,6 @@ plot(tdm, term = freq.terms, corThreshold = 0.1, weighting = T)
 
 library(tm)
 
-library(rJava) .jinit(parameters="-Xmx128g")
-library(RWeka)
-
 #Load data
 myfile <- "./final/en_US/en_US.blogs.txt"
 en_US.blogs <- scan(file=myfile, what="character", sep="\n", quote="")
@@ -175,28 +172,53 @@ corpus <- VCorpus(corp.source, readerControl = list(language = "English"))
 rm(corp.source)
 
 #Clean corpus
-corpus <- tm_map(corpus, removeWords, stopwords("english"))
-##profanity list from http://www.cs.cmu.edu/~biglou/resources/
+
 url <- "http://www.cs.cmu.edu/~biglou/resources/bad-words.txt"
 profanity <- read.csv(url, header=FALSE)
 ownStopWords <- as.character(profanity[[1]])
-corpus <- tm_map(corpus, removeWords, ownStopWords)
-rm(url, profanity, ownStopWords)
 
-corpus <- tm_map(corpus, content_transformer(tolower))
-corpus <- tm_map(corpus, removeNumbers)
-corpus <- tm_map(corpus, stripWhitespace)
+CleanCorpus <- function(x){
+    #corpus <- tm_map(corpus, removeWords, stopwords("english"))
+    x <- tm_map(x, removeWords, ownStopWords)
+    x <- tm_map(x, content_transformer(tolower))
+    x <- tm_map(x, removeNumbers)
+    x <- tm_map(x, removePunctuation)
+    x <- tm_map(x, stripWhitespace)
+    x <- tm_map(x, PlainTextDocument)  
+    return(x)
+}
 
-writeCorpus(corpus, path = "./corpus",
-            filenames = paste(seq_along(corpus), ".txt", sep = ""))
+CleanCorpus(corpus)
 
 #Tokenize
 
 ## Sets the default number of threads to use
 options(mc.cores=1)
 
-ngramTokenizer = function(x) NGramTokenizer(x, Weka_control(min = 1, max = 3))
+OnegramTokenizer <-
+    function(x)
+        unlist(lapply(ngrams(words(x), 1), paste, collapse = " "),
+               use.names = FALSE)
 
-dtm <- DocumentTermMatrix(corpus, control = list(tokenize = ngramTokenizer))
-dtm <- removeSparseTerms(dtm, sparseValue)
-dtm <- as.data.frame(as.matrix(dtm))
+BigramTokenizer <-
+    function(x)
+        unlist(lapply(ngrams(words(x), 2), paste, collapse = " "),
+               use.names = FALSE)
+
+TrigramTokenizer <-
+    function(x)
+        unlist(lapply(ngrams(words(x), 3), paste, collapse = " "),
+               use.names = FALSE)
+
+tdm1 <- TermDocumentMatrix(corpus, control = list(tokenize = OnegramTokenizer))
+
+tdm2 <- TermDocumentMatrix(corpus, control = list(tokenize = BigramTokenizer))
+
+tdm3 <- TermDocumentMatrix(corpus, control = list(tokenize = TrigramTokenizer))
+
+
+# Find associations
+
+findAssocs(tdm1, "case", corlimit = 0.25)
+findAssocs(tdm2, "case of", corlimit = 0.25)
+findAssocs(tdm3, "a case of", corlimit = 0.25)
